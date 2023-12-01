@@ -1,0 +1,438 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Steganografi - Bilder i Bilder</title>
+</head>
+<body>
+
+Dette verktøyet gjemmer bildedata i et annet ved å ofre de 3 laveste bits i RGB data, 
+med de 3 høyeste fra bildedata som skal gjemmes. Bildedata hentes 
+dermed frem igjen ved å lete i de 3 laveste bit'ene (LSB = Least Significant Bits). <br><br>
+
+F.eks. RGB verdien 129 = 10000001 fordi:<br>
+<pre>1   0  0  0  0 0 0 1
+128 64 32 16 8 4 2 1</pre><br>
+
+128 og 1 bit'ene slås sammen for å konvertere binær(totallsystem) til desimal(titallsystem) og 
+blir 129. Da blir det forhåpentligvis tydelig hvorfor det fungerer i den graden det gjør å bytte 
+lite verdifulle bits (4,2,1) som har minst utslag, med de mest verdifulle (128,64,32) som vil 
+ha størst utslag og best representasjon av en desimaltall-basert fargeverdi 0-255.<br><br>
+
+Laget for morro skyld etter å ha deltatt på E-tjenestens CTF utfordringer, julen 2021.<br><br><br>
+
+<style>
+body {
+	font-family: verdana;
+	font-size: 13px;
+	padding: 20px;
+}
+TD {
+	vertical-align: top;
+}
+
+#stegmain {
+	width: 625px;
+	margin: 0px auto;
+	padding-left: 20px;
+	border-left: 2px dashed #ccc;
+	border-radius: 20px;
+	font-family: Verdana;
+	font-size: 11px;
+}
+
+#AntallLSBTable {
+	border-spacing: 0px;
+}
+#AntallLSBTable TD {
+	text-align: center;
+	padding: 0px;
+	margin: 0px;
+}
+
+#createdby {
+	clear: both;
+	padding-top: 20px;
+}
+
+.VelgBilde {
+	font-family: arial;
+	font-size: 11px;
+}
+</style>
+
+<div id="stegmain">
+
+<b>Steg 1)</b> Velg hovedbilde <input type="file" id="HovedBilde" name="HovedBilde" onchange="PreviewImage()" class="VelgBilde"><br><br>
+
+<b>Steg 2)</b> Velg bilde som skal gjemmes <input type="file" id="GjemmeBilde" name="GjemmeBilde" onchange="HideImage()" class="VelgBilde"><br><br>
+
+Eller let etter skjulte bilder i 
+<a href="javascript:SearchLSB(0)">Rød</a> | 
+<a href="javascript:SearchLSB(1)">Grønn</a> | 
+<a href="javascript:SearchLSB(2)">Blå</a> | 
+<a href="javascript:SearchLSB(3)">Alle</a> kanal(er).<br>
+
+<table>
+	<tr>
+		<td>Bruk</td>
+		<td>
+			<table id="AntallLSBTable">
+			<tr>
+				<td>1</td>
+				<td>2</td>
+				<td>3</td>
+			</tr>
+			<tr>
+				<td><input type="radio" id="AntallLSB" name="AntallLSB" value="1"></td>
+				<td><input type="radio" id="AntallLSB" name="AntallLSB" value="2"></td>
+				<td><input type="radio" id="AntallLSB" name="AntallLSB" value="3" checked="checked"></td>
+			</tr>
+			</table>
+		</td>
+		<td>LSB i søket per kanal.</td>
+	</tr>
+</table>
+<input type="checkbox" id="VisSomASCII" name="VisSomASCII" style="vertical-align:middle"> Vis også LSB bits (sammenhengende) som forståelig ASCII.
+<div id="ASCIIDataContainer"></div>
+
+</div><br>
+
+<div style="float:right; text-align:left; width:99%">
+<div id="PreviewCanvasContainer">
+	<canvas id="PreviewCanvas" width="0" height="0">
+		Your browser does not support the HTML5 canvas tag.
+	</canvas>
+</div><br>
+<div id="SearchCanvasContainer">
+	<canvas id="SearchCanvas" width="0" height="0">
+		Your browser does not support the HTML5 canvas tag.
+	</canvas>
+</div>
+</div>
+
+<script>
+
+//
+//	Globale variabler.
+//
+var LoadedImageHeight = 0;
+var LoadedImageWidth = 0;
+
+//
+//	Funksjon som laster bildet til en HTML5 canvas ved første valg.
+//
+function PreviewImage() {
+	
+	// Elementer
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var ctx_s_ele_div = document.getElementById('SearchCanvasContainer');
+	var ctx_s_ele = document.getElementById('SearchCanvas');
+	var ctx_s = ctx_s_ele.getContext('2d');
+	var file = document.querySelector("input[name=HovedBilde]").files[0];
+	
+	// Les inn fildata.
+	var reader = new FileReader();
+	var image = new Image;
+	if (file) 
+		reader.readAsDataURL(file);
+	else
+		return;
+	
+	
+	// Vis bilde når det er ferdig lastet.
+	reader.onloadend = function () {
+		
+		// Last bilde.
+		image.src = URL.createObjectURL(file);
+		
+		// Callback ved lasting av bildet.
+		image.onload = function() {
+			
+			// Først fjern hva enn som er i canvas.
+			ctx_s.clearRect(0, 0, LoadedImageWidth, LoadedImageHeight);
+			
+			// Oppdater canvas dimensjoner.
+			ctx_ele_div.style.height = image.height +'px';
+			ctx_ele_div.style.width = image.width +'px';
+			ctx_ele.height = image.height;
+			ctx_ele.width = image.width;
+			LoadedImageHeight = image.height;
+			LoadedImageWidth = image.width;
+			
+			// Vis bildet og frigjør minne.
+			ctx.drawImage(image, 0, 0);
+			URL.revokeObjectURL(image.src);
+
+			//
+			//	Vis forhåndsvisning av preview bildet.
+			//
+			ctx_ele_div.style.display = 'block';
+		}
+	}
+}
+
+
+
+//
+//	Funksjon for å lete etter skjulte bilder i bildedata.
+//
+function SearchLSB(FargeKanal) {
+	
+	// Sjekk om det er lastet noe bilde i det hele tatt.
+	if (LoadedImageHeight == 0) 
+		return;
+	
+	// Elementer.
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var ctx_s_ele_div = document.getElementById('SearchCanvasContainer');
+	var ctx_s_ele = document.getElementById('SearchCanvas');
+	var ctx_s = ctx_s_ele.getContext('2d');
+	
+	var AntallLSB_ele = document.getElementsByName('AntallLSB');
+	
+	// Sjekk hvor mange Lower Significant Bits vi skal sjekke.
+	var AntallLSB;
+	for (var a = 0; a < AntallLSB_ele.length; a++)
+		if (AntallLSB_ele[a].checked)
+			AntallLSB = AntallLSB_ele[a].value;
+
+	// Henter bildedata fra bilde som antas å allerede være normalisert og ha skjult tekst.
+	var BildeData = ctx.getImageData(0, 0, LoadedImageWidth, LoadedImageHeight);
+	
+	// Løp gjennom alle RGBA verdier individuelt.
+	var BinaerTekst = '';
+	var ASCIIbits = '';
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		// Vi bryr oss kun om RGB verdiene (de 3 første) og ikke alpha.
+		for (var rgb = 0; rgb < 3; rgb++) {
+			
+			// Hent kun bits fra valgt kanal.
+			if (FargeKanal == rgb || FargeKanal == 3) {
+				
+				// Hent bits til valgt fargekanal.
+				var rgb_bin_val = BildeData.data[i + rgb].toString(2);
+				
+				// Pad til full byte lengde.
+				while (rgb_bin_val.length < 8)
+					rgb_bin_val = '0'+ rgb_bin_val;
+				
+				// Hent kun riktig antall fra høyre (least significant).
+				rgb_bin_val = rgb_bin_val.substring(8 - AntallLSB);
+				
+				// Registrer for evt. ASCII visning.
+				ASCIIbits += rgb_bin_val;
+				
+				// Pad til full byte lengde igjen, men gjør LSB til MSB.
+				while (rgb_bin_val.length < 8)
+					rgb_bin_val = rgb_bin_val +'0';
+				
+				// Registrer bits.
+				BinaerTekst += rgb_bin_val;
+			}
+		}
+	}
+
+	//
+	//	Oppdater bildedata som skal vises.
+	//
+	var counter = 0;
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		// Løp gjennom RGB verdiene og bytt med hentet data.
+		for (var rgb = 0; rgb < 3; rgb++) {
+			if (counter < BinaerTekst.length) {
+				if (FargeKanal == rgb || FargeKanal == 3) {
+					
+					var tmpVal = '';
+					for (var a = 0; a < 8; a++)
+						tmpVal += BinaerTekst[counter + a];
+					
+					BildeData.data[i + rgb] = parseInt(tmpVal, 2);
+					counter += 8;
+					
+				} else {
+					BildeData.data[i + rgb] = 0;
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	//
+	//	Oppdater canvas dimensjoner og skriv bildet til canvas.
+	//
+	ctx_s_ele_div.style.height = LoadedImageHeight +'px';
+	ctx_s_ele_div.style.width = LoadedImageWidth +'px';
+	ctx_s_ele.height = LoadedImageHeight;
+	ctx_s_ele.width = LoadedImageWidth;
+	LoadedImageHeight = LoadedImageHeight;
+	LoadedImageWidth = LoadedImageWidth;
+	ctx_s.putImageData(BildeData, 0, 0);
+	
+	// Skulle det også vises som ASCII?
+	if (document.getElementById('VisSomASCII').checked) {
+		
+		counter = 0;
+		var ASCIIContainer = document.getElementById('ASCIIDataContainer');
+		ASCIIContainer.innerHTML = '';
+		
+		// Vis det først som ascii.
+		for (var i = 0; i < ASCIIbits.length; i += 8) {
+			
+			var tmpVal = '';
+			for (var a = 0; a < 8; a++)
+				tmpVal += ASCIIbits[i + a];
+			
+			// Vis kun forståelig ASCII.
+			var kKode = parseInt(tmpVal, 2);
+			if (kKode >= 32 && kKode <= 126)
+				ASCIIContainer.innerHTML += String.fromCharCode(kKode);
+		}
+	}
+}
+
+
+//
+//	Hjelpefunksjon for HideImage() siden lasting av bilde er async.
+//
+function HideImageHelper() {
+	
+	// Elementer.
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var ctx_s_ele_div = document.getElementById('SearchCanvasContainer');
+	var ctx_s_ele = document.getElementById('SearchCanvas');
+	var ctx_s = ctx_s_ele.getContext('2d');
+	
+	// Hent bildedata.
+	var GjemmeBildeData = ctx_s.getImageData(0, 0, ctx_s_ele.width, ctx_s_ele.height);
+	var BildeData = ctx.getImageData(0, 0, ctx_ele.width, ctx_ele.height); 
+	
+	// Sjekk at bilde ikke er for stort til å gjemmes i bildet.
+	if (GjemmeBildeData.data.length > BildeData.data.length) {
+		alert('Bildet er ikke stort nok til å gjemme det andre bildet.');
+		ctx_s.clearRect(0, 0, ctx_s_ele.width, ctx_s_ele.height);
+		ctx_s_ele.width = 0;
+		ctx_s_ele.height = 0;
+		ctx_s_ele_div.style.width = 0 +'px';
+		ctx_s_ele_div.style.height = 0 +'px';
+		return;
+	}
+	
+	//
+	//	Skriv det andre bildet inn i det andre via de 3 minste bits/LSB.
+	//
+	var counter = 0;
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		// Bruk kun RGB kanalene og ikke alpha.
+		for (var rgb = 0; rgb < 3; rgb++) {
+			
+			// Hopp ut når det ikke er mer gjemmebilde data igjen.
+			if (i < GjemmeBildeData.data.length) {
+				
+				// Hent de 3 største bits fra gjemmebildet.
+				var GjemmeBildeBits = GjemmeBildeData.data[i + rgb].toString(2);
+				while (GjemmeBildeBits.length < 8)
+					GjemmeBildeBits = '0'+ GjemmeBildeBits;
+				
+				GjemmeBildeBits = GjemmeBildeBits.substring(0,3);
+				
+				// Gjem dem i LSB posisjon på bildedata.
+				var BildeBits = BildeData.data[i + rgb].toString(2);
+				while (BildeBits.length < 8)
+					BildeBits = '0'+ BildeBits;
+				
+				BildeBits = BildeBits.substring(0,5) + GjemmeBildeBits;
+				
+				// Oppdater bildedata.
+				BildeData.data[i + rgb] = parseInt(BildeBits, 2);
+			} else {
+				break;
+			}
+		}
+	}
+	
+
+	//
+	//	Gjem forhåndsvisning av preview bildet.
+	//
+	ctx_ele_div.style.display = 'none';
+
+	//
+	//	 Oppdater canvas dimensjoner og skriv bildet til canvas.
+	//
+	ctx_s.putImageData(BildeData, 0, 0);
+	alert('Bilde oppdatert, du kan nå høyreklikke og lagre til fil.\nLast det inn på nytt for å sjekke skjult bildedata.');
+}
+
+
+
+//
+//	Funksjon for lagring av bilde i bildedata. 
+//	Oppdaterer canvas med ny bildedata som kan høyreklikkes på og lagres til fil.
+//
+function HideImage() {
+	
+	// Sjekk om det er lastet noe bilde i det hele tatt.
+	if (LoadedImageHeight == 0) 
+		return;
+	
+	// Elementer.
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var ctx_s_ele_div = document.getElementById('SearchCanvasContainer');
+	var ctx_s_ele = document.getElementById('SearchCanvas');
+	var ctx_s = ctx_s_ele.getContext('2d');
+	var file = document.querySelector("input[name=GjemmeBilde]").files[0];
+	
+	// Les inn fildata.
+	var reader = new FileReader();
+	var image = new Image;
+	if (file) 
+		reader.readAsDataURL(file);
+	else
+		return;
+	
+	// Last bilde.
+	reader.onloadend = function () {
+		image.src = URL.createObjectURL(file);
+		
+		// Callback ved lasting av bildet.
+		image.onload = function() {
+			
+			// Oppdater canvas dimensjoner.
+			ctx_s_ele_div.style.height = ctx_ele_div.style.height;
+			ctx_s_ele_div.style.width = ctx_ele_div.style.height;
+			ctx_s_ele.height = ctx_ele.height;
+			ctx_s_ele.width = ctx_ele.width;
+			
+			// Vis bildet og frigjør minne.
+			ctx_s.fillStyle = '#fff';
+			ctx_s.fill();
+			ctx_s.drawImage(image, 0, 0);
+			URL.revokeObjectURL(image.src);
+			
+			// Kall hjelperen når alt er lastet ferdig.
+			HideImageHelper();
+		}
+	}
+}
+
+</script>
+
+<div id="createdby">
+	&copy; Dag J Nedrelid
+</div>
+
+</body>
+</html>

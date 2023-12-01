@@ -1,0 +1,36 @@
+BODY {
+	font-family: arial;
+	font-size: 13px;
+}
+A {
+	color: blue;
+}
+A:HOVER {
+	text-decoration: none;
+}
+
+INPUT, SELECT {
+	outline: none;
+	font-size: 24px;
+	padding: 10px;
+}
+
+#ke_calc_result {
+	font-size: 24px;
+	padding: 10px;
+}
+
+#gg_instant_convert,
+#mf_instant_convert {
+	font-size: 24px;
+	padding: 10px;
+}
+
+.btn {
+	outline: none;
+	border: 1px solid #ccc;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #e6faff;
+	cursor: pointer;
+}	

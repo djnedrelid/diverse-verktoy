@@ -1,0 +1,38 @@
+BODY {
+	font-family: arial;
+	font-size: 13px;
+}
+
+A {
+	color: blue;
+}
+
+A:HOVER {
+	text-decoration: none;
+}
+
+INPUT, SELECT {
+	outline: none;
+	border: none;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #e6faff;
+}
+
+SELECT {
+	cursor: pointer;
+}
+
+OL, LI {
+	margin: 0px 0px 0px 10px;
+	padding: 0px;
+}
+
+TD {
+	vertical-align: top;
+	padding-bottom: 10px;
+}
+
+.pointer {
+	cursor: pointer;
+}	

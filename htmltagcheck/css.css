@@ -1,0 +1,49 @@
+BODY {
+	font-family: arial;
+	font-size: 13px;
+}
+A {
+	color: blue;
+}
+A:HOVER {
+	text-decoration: none;
+}
+INPUT {
+	outline: none;
+	border: none;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #e6faff;
+	cursor: pointer;
+}
+
+#line_number_div, 
+#source_div {
+	height: 600px;
+}
+
+#source_div TEXTAREA {
+	width: 90%;
+	height: 600px;
+	white-space: nowrap;
+	font-family: consolas, monospace;
+	padding: 0px;
+	margin: 0px;
+	border: 1px solid #999;
+	resize: none;
+	outline: none;
+	overflow-x: scroll;
+}
+
+#line_number_div {
+	width: 40px;
+	float: left;
+	font-family: consolas, monospace;
+	text-align: right;
+	padding-right: 5px;
+	overflow-x: scroll;
+	overflow-y: hidden;
+	border: 0px solid #999;
+	border-bottom: 1px solid #999;
+	border-top: 1px solid #fff;
+}

@@ -1,0 +1,227 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Menneskelig Multiplisering</title>
+
+<style type="text/css">
+body { padding: 50px; font-family: sans-serif; font-size: 16px; }
+input { font-size: 16px; padding: 10px; outline: none; border-radius: 5px; border: 1px solid #999; }
+h1 { margin:20px 0px; }
+#svar { margin-right: 50px; }
+.rekketall { display: inline-block; border: 1px solid #ccc; padding: 10px 15px; position:relative; }
+.rekketall_usynlig { display: inline-block; visibility: hidden; border: 1px solid #ccc; padding: 10px 15px; }
+.carrybox { position: absolute; top:0px; right:0px; font-size: 11px; background-color:yellow; border-radius:10px; padding:2px; }
+.makstall_link { user-select:none; color:blue; cursor:pointer; }
+</style>
+
+<script>
+var makstall = 10;
+
+function regnut() {
+	// Vis svaret.
+	var tall_1 = document.getElementById('tall_1').value;
+	var tall_2 = document.getElementById('tall_2').value;
+	var svar = document.getElementById('svar');
+	var tmpsvar = tall_1 * tall_2;
+	svar.innerHTML = tmpsvar.toLocaleString();
+	
+	// Tilpass tabell til størrelse på tall.
+	if (tall_1.length > tall_2.length)
+		makstall = tall_1.length * 2;
+	else
+		makstall = tall_2.length * 2;
+	
+	// Forklar svaret.
+	var fbox = document.getElementById('forklaringsboks');
+	var tall_1_arr = tall_1.split('');
+	var tall_2_arr = tall_2.split('');
+	
+	fbox.innerHTML = '';
+	fbox.innerHTML += '<h1>Forklaring og illustrasjon:</h1>'+
+	'Begynner med det bakerste tallet i TALL-2, og multipliserer det med alle tallene i TALL-1.<br>'+
+	'Fortsetter til de neste tallene bakover i TALL-2, og multipliserer de også med alle TALL-1.<br><br><br>';
+	
+	// List det første tallet.
+	fbox.innerHTML += '<div class="rekketall" style="visibility:hidden">&times;</div>';
+	for (var a=0; a<makstall; a++) {
+		if ((a + tall_1_arr.length) >= makstall)
+			fbox.innerHTML += '<div class="rekketall">'+ tall_1_arr[(a + tall_1_arr.length) - makstall] +'</div>';
+		else
+			fbox.innerHTML += '<div class="rekketall_usynlig">0</div>';
+	}	
+	
+	// List det andre tallet.
+	fbox.innerHTML += '<br><div class="rekketall" style="border:1px solid #fff">&times;</div>';
+	for (var a=0; a<makstall; a++) {
+		if ((a + tall_2_arr.length) >= makstall)
+			fbox.innerHTML += '<div class="rekketall">'+ tall_2_arr[(a + tall_2_arr.length) - makstall] +'</div>';
+		else
+			fbox.innerHTML += '<div class="rekketall_usynlig">0</div>';
+	}
+	
+	fbox.innerHTML += '<br><br>Hver rad er ett TALL-2 multiplisert med alle tall i TALL-1 (må gjøres baklengs):<br>';
+	
+	// Illustrer ganging i rader nedover.
+	var indent = 0;
+	for (var a=tall_2_arr.length-1; a>=0; a--) {
+		
+		var svar_deler = [];
+		var carry = 0;
+		var carryregister = [];
+		
+		// Oppretter en index-offset for å kunne vise carry på samme indeks som svar_deler.
+		carryregister.push(0);	
+		
+		for (var b=tall_1_arr.length-1; b>=0; b--) {
+		
+			// Hele svaret.
+			var helsvar = tall_2_arr[a] * tall_1_arr[b] + carry;
+			
+			// Beregn 10ere som må bæres videre og lagre aktuelt tall for tabell.
+			var new_carry = 0;
+			if (helsvar > 9) {
+				new_carry = Math.floor(helsvar / 10);
+				svar_deler.push(helsvar % 10);
+			} else {
+				new_carry = 0;
+				svar_deler.push(helsvar);
+			}
+			carry = new_carry;
+			carryregister.push(carry);
+		}
+	
+		// Jeg trenger tallene i revers rekkefølge for listing.
+		svar_deler.reverse();
+		carryregister.reverse();
+		
+		fbox.innerHTML += '<br><div class="rekketall" style="border:1px solid #fff">'+ tall_2_arr[a] +'</div>';
+		
+		// Tegn rad for gjeldende TALL-2.
+		for (var c=0; c<makstall; c++) {
+			
+			// Er alle tallene skrevet ferdig?
+			if (((c + svar_deler.length + indent) - makstall) > (svar_deler.length-1)) {
+				fbox.innerHTML += '<div class="rekketall_usynlig">0</div>';
+			
+			// Er det på tide å skrive tall?
+			} else if ((c + svar_deler.length + indent) >= makstall) {
+			
+				// Lagrer lang målindeks for gjentatt bruk.
+				var target_index = (c + svar_deler.length + indent) - makstall;
+			
+				// Skal det vises en carry?
+				var carrybox = '';
+				if (carryregister[target_index+1] != 0)
+					carrybox += '<div class="carrybox">'+ carryregister[target_index+1].toString() +'</div>';
+			
+				fbox.innerHTML += '<div class="rekketall">'+ 
+					svar_deler[target_index] + 
+					carrybox
+				'</div>';
+			
+			// Er det rett før tallene og det finnes en carry som må skrives?
+			} else if ((c + svar_deler.length + indent) + 1  >= makstall && carry!=0) {
+				fbox.innerHTML += '<div class="rekketall">'+ carry +'</div>';
+			} else {
+				fbox.innerHTML += '<div class="rekketall_usynlig">0</div>';
+			}
+		}
+		
+		indent++;
+	}
+	
+	// Skriv svaret.
+	fbox.innerHTML += '<br><br>Ved å addere resultater ovenfor slik de står rett under hverandre som et eget regnestykke, får man et endelig resultat.<br>';
+	var svar_txt = tmpsvar.toString().split('');
+	fbox.innerHTML += '<br><div class="rekketall" style="border:1px solid #fff">&equals;</div>';
+	for (var a=0; a<makstall; a++) {
+		if ((a + svar_txt.length) >= makstall)
+			fbox.innerHTML += '<div class="rekketall">'+ svar_txt[(a + svar_txt.length) - makstall] +'</div>';
+		else
+			fbox.innerHTML += '<div class="rekketall_usynlig">0</div>';
+	}
+	
+	// Forklaring med tekst.
+	fbox.innerHTML += '<br><br><br><h1>Programmet gjorde dette i rekkefølge som et menneske:</h1>';
+	for (var a=tall_2_arr.length-1; a>=0; a--) {
+		var carry = 0;
+		for (var b=tall_1_arr.length-1; b>=0; b--) {
+		
+			var svar = tall_2_arr[a] * tall_1_arr[b];
+			fbox.innerHTML += 'Ganger '+ tall_2_arr[a] +' med '+ tall_1_arr[b] +' = '+ svar;
+			
+			if (svar > 9 && b > 0) {
+			
+				if (carry != 0) {
+					fbox.innerHTML += ' + '+ carry +' fra forrige = '+ (svar+carry);
+					svar += carry;
+				}
+			
+				fbox.innerHTML += '. Bruker '+ (svar % 10) +' og tar med '+ Math.floor(svar / 10) +' til neste';
+				carry = Math.floor(svar / 10);
+				
+			} else if (svar > 9 && b == 0) {
+				if (carry != 0)
+					fbox.innerHTML += ' + '+ carry +' fra forrige = '+ (svar+carry);
+				fbox.innerHTML += '. Dette var det siste tallet og kan derfor skrives som '+ (svar+carry);
+					
+			} else if (carry != 0) {
+				fbox.innerHTML += ' + '+ carry +' fra forrige = '+ (svar+carry);
+				if ((svar+carry) > 9) {
+					carry = Math.floor((svar+carry)/10);
+					fbox.innerHTML += '. Bruker '+ (svar+carry)%10 +' og tar med '+ carry +' til neste';
+				} else {
+					carry = 0;
+				}
+			}
+			
+			fbox.innerHTML += '.<br>';
+		}
+		fbox.innerHTML += '<br>';
+	}
+}
+</script>
+</head>
+<body>
+
+<div style="border-bottom:3px dashed #ccc; padding:10px; width:600px;">
+	<em>Et raskt lite prosjekt til Markus for eksperimentering og testing av multiplisering.<br> 
+	Den prøver å etterligne hvordan et menneske kunne utført en multiplisering på papir.</em>
+</div>
+
+<h1>Skriv inn 2 tall som skal multipliseres:</h1>
+<table>
+<tr>
+	<td>&nbsp;</td>
+	<td><input type="text" id="tall_1"> (TALL-1)</td>
+	<td>&nbsp;</td>
+</tr>
+<tr>
+	<td>&times;</td>
+	<td><input type="text" id="tall_2"> (TALL-2)</td>
+	<td>&nbsp;</td>
+</tr>
+<tr>
+	<td colspan="3"><hr></td>
+</tr>
+<tr>
+	<td>&equals;</td>
+	<td>
+		<span id="svar"></span> 
+	</td>
+	<td>
+		<input type="button" value="regn ut" onclick="regnut()">		
+	</td>
+</tr>
+</table><br><br>
+
+<div id="forklaringsboks">
+	
+</div>
+
+<div id="createdby">
+	&copy; Dag J Nedrelid
+</div>
+</body>
+</html>

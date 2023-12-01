@@ -1,0 +1,19 @@
+BODY {
+	font-family: arial;
+	font-size: 13px;
+}
+A {
+	color: blue;
+}
+A:HOVER {
+	text-decoration: none;
+}
+
+.btn {
+	outline: none;
+	border: none;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #e6faff;
+	cursor: pointer;
+}	

@@ -1,0 +1,273 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>Steganografi - Tekst i Bilder</title>
+</head>
+<body>
+
+Dette verktøyet gjemmer tekst i bilder ved å første subtrahere RGB verdier til nærmeste 
+partall, og deretter legge på binærverdier av en tekststreng (ASCII 32-255) slik at RGB 
+verdiene blir oddetall i stedet. Deretter letes det etter oddetall ved oppslag som blir 
+antatt binærverdien 1. For å unngå "støy"-karakterer, pakkes strengen også inn i skjulte 
+tagger.<br><br>
+
+Laget for morro skyld etter å ha deltatt på E-tjenestens CTF utfordringer, julen 2021.<br><br><br>
+
+<style>
+body {
+	font-family: verdana;
+	font-size: 13px;
+	padding: 20px;
+}
+TD {
+	vertical-align: top;
+}
+
+#stegmain {
+	width: 500px;
+	margin: 0px auto;
+	padding: 10px;
+	border-left: 2px dashed #ccc;
+	border-radius: 20px;
+	font-family: Verdana;
+	font-size: 11px;
+}
+
+#HentetTekst {
+	padding: 10px;
+}
+
+.VelgBilde,
+.LagreTekst {
+	font-family: arial;
+	font-size: 11px;
+}
+
+#createdby {
+	clear: both;
+	padding-top: 20px;
+}
+</style>
+
+<div id="stegmain">
+<b>Steg 1)</b> Velg et RGBA bilde (f.eks. PNG, JPEG). 
+<input type="file" id="file" name="file" onchange="PreviewImage()" class="VelgBilde"><br><br>
+
+<table style="margin:0px; padding:0px;" cellpadding="0" cellspacing="0">
+<tr>
+	<td>
+		<b>Steg 2)</b>  
+	</td>
+	<td>
+		Velg tekst som skal gjemmes i bildet. 
+		<input type="text" id="tekst" name="tekst" value="" class="LagreTekst"> 
+		<input type="button" id="lagre" name="lagre" value="Lagre" class="LagreTekst" onclick="LagreTekst()">
+	</td>
+</tr>
+<tr>
+	<td>             </td>
+	<td style="padding-top:5px">
+		Eller <a href="javascript:HentTekst();">Søk etter tekst</a> som allerede kan være gjemt i bildet.
+		<div id="HentetTekst"> </div>
+	</td>
+</tr>
+</table>
+</div><br>
+
+<div style="float:right; width:99%; text-align:left">
+<div id="PreviewCanvasContainer">
+<canvas id="PreviewCanvas" width="0" height="0">
+	Your browser does not support the HTML5 canvas tag.
+</canvas>
+</div>
+</div>
+
+<script>
+//
+//	Globale variabler.
+//
+var LoadedImageHeight = 0;
+var LoadedImageWidth = 0;
+
+//
+//	Funksjon som laster bildet til en HTML5 canvas ved første valg.
+//
+function PreviewImage() {
+	var reader = new FileReader();
+	var image = new Image;
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var file = document.querySelector('input[type=file]').files[0];
+	
+	// Les inn fildata.
+	if (file) {
+		reader.readAsDataURL(file);
+	} else {
+		alert('Kunne ikke lese '+ file);
+		return;
+	}
+	
+	// Vis bilde når det er ferdig lastet.
+	reader.onloadend = function () {
+		
+		// Last bilde.
+		image.src = URL.createObjectURL(file);
+		
+		// Callback ved lasting av bildet.
+		image.onload = function() {
+			
+			// Oppdater canvas dimensjoner.
+			ctx_ele_div.style.height = image.height +'px';
+			ctx_ele_div.style.width = image.width +'px';
+			ctx_ele.height = image.height;
+			ctx_ele.width = image.width;
+			LoadedImageHeight = image.height;
+			LoadedImageWidth = image.width;
+			
+			// Vis bildet og frigjør minne.
+			ctx.drawImage(image, 0, 0);
+			URL.revokeObjectURL(image.src);
+		}
+	}
+}
+
+//
+//	Funksjon for lagring av tekst i bildedata. 
+//	Oppdaterer canvas med ny bildedata som kan høyreklikkes på og lagres til fil.
+//
+function LagreTekst() {
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+	var BildeTekst = document.getElementById('tekst').value;
+	
+	// Sjekk at tekst ikke er for lang til å gjemmes i bildet.
+	if ((BildeTekst.length * 8) > (ctx.width * ctx.height * 3)) {
+		alert('Bildet er ikke stort nok til å gjemme den teksten.');
+		return;
+	}
+	
+	//
+	//	Normaliser bildedata før vi injiserer tekstdata.
+	//
+	var BildeData = ctx.getImageData(0, 0, LoadedImageWidth, LoadedImageHeight);
+	
+	// Løp gjennom alle RGBA verdier individuelt.
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		// Vi bryr oss kun om RGB verdiene (de 3 første) og ikke alpha.
+		for (var rgb = 0; rgb < 3; rgb++) {
+			
+			// Ved å bruke modulus gjør vi alle RGB verdier til partall.
+			if ((BildeData.data[i + rgb] % 2) != 0)
+				BildeData.data[i + rgb]--;
+		}
+	}
+	
+	//
+	//	Konverter tekst til en binær streng.
+	//
+	BildeTekst = '<GJEMTTEKST>'+ BildeTekst +'</GJEMTTEKST>';
+	var BinaerTekst = '';
+	for (var i = 0; i < BildeTekst.length; i++) {
+		
+		// Hent binærverdien av hver karakter i teksten.
+		var bChar = BildeTekst[i].charCodeAt(0).toString(2);
+		
+		// Legg på nuller foran verdien slik at det blir en hel byte.
+		while (bChar.length < 8)
+			bChar = '0'+ bChar;
+			
+		BinaerTekst += bChar;
+	}
+	
+	//
+	//	Skriv den binære strengen inn i normalisert bildedata.
+	//
+	var counter = 0;
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		//
+		// Løp gjennom RGB verdiene og legg på BinaerTekst.
+		// Under normalisering ble de gjort til partall, 
+		// og kan ved uthenting søkes etter med oddetall.
+		//
+		for (var rgb = 0; rgb < 3; rgb++) {
+			if (counter < BinaerTekst.length) {
+				BildeData.data[i + rgb] += parseInt(BinaerTekst[counter]);
+				counter++;
+			} else {
+				break;
+			}
+		}
+	}
+	
+	//
+	//	Skriv bildet til canvas.
+	//
+	ctx.putImageData(BildeData, 0, 0);
+	alert('Bilde oppdatert, du kan nå høyreklikke og lagre til fil.');
+}
+
+//
+//	Funksjon for henting av skjult tekst i valgt bilde.
+//
+function HentTekst() {
+	
+	// Sjekk om det er lastet noe bilde i det hele tatt.
+	if (LoadedImageHeight == 0)
+		return;
+	
+	var ctx_ele_div = document.getElementById('PreviewCanvasContainer');
+	var ctx_ele = document.getElementById('PreviewCanvas');
+	var ctx = ctx_ele.getContext('2d');
+
+	// Henter bildedata fra bilde som antas å allerede være normalisert og ha skjult tekst.
+	var BildeData = ctx.getImageData(0, 0, LoadedImageWidth, LoadedImageHeight);
+	
+	// Løp gjennom alle RGBA verdier individuelt.
+	var BinaerTekst = '';
+	for (var i = 0; i < BildeData.data.length; i += 4) {
+		
+		// Vi bryr oss kun om RGB verdiene (de 3 første) og ikke alpha.
+		for (var rgb = 0; rgb < 3; rgb++) {
+			
+			// Hvis vi støter på et oddetall, er det sannsynlig at det er gjemt en binærverdi der.
+			if ((BildeData.data[i + rgb] % 2) != 0)
+				BinaerTekst += '1';
+			else
+				BinaerTekst += '0';
+		}
+	}
+	
+	// Konverter binærtekst til vanlig tekst.
+	var VanligTekst = '';
+	for (var i = 0; i < BinaerTekst.length; i += 8) {
+		var k = 0;
+		for (var b = 0; b < 8; b++) {
+			k <<= 1;
+			k |= parseInt(BinaerTekst[i + b]);
+		}
+		
+		// Hent kun utvidet ASCII.
+		if (k >= 32 && k <= 255)
+			VanligTekst += String.fromCharCode(k);
+	}
+	
+	// Hent kun tekst innenfor gjemt format.
+	var GjemtTekst = VanligTekst.match(/<GJEMTTEKST>(.*)<\/GJEMTTEKST>/i);
+	if (GjemtTekst != null && GjemtTekst.length > 1)
+		document.getElementById('HentetTekst').innerHTML = GjemtTekst[1];
+	else
+		document.getElementById('HentetTekst').innerHTML = 'Ingen tekst funnet.';
+}
+</script>
+
+<div id="createdby">
+	&copy; Dag J Nedrelid
+</div>
+
+</body>
+</html>

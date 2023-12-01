@@ -1,0 +1,116 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="" rel="stylesheet" type="text/css">
+<script src="" type="text/javascript"></script>
+<title>Barnetillegg</title>
+
+<style>
+@page { size: auto; margin: 0mm; }
+
+BODY {
+	font-family: verdana;
+	font-size: 12px;
+	-webkit-print-color-adjust: exact;
+	margin: 20px;
+	line-height: 2;
+}
+
+INPUT {
+	width: 100px;
+}
+
+H2 {
+	padding: 0px;
+	margin: 0px;
+}
+
+.autofelter {
+	border: none;
+}
+.fyllfelter {
+	border-top: none;
+	border-left: none;
+	border-right: none;
+	outline: none;
+}
+</style>
+
+<script>
+function kalkuler() {
+	var g_gammel = parseInt(document.getElementById('g_gammel').value.replace(/\s/g, ''));
+	var g_ny = parseInt(document.getElementById('g_ny').value.replace(/\s/g, ''));
+	var antall_barn = parseInt(document.getElementById('antall_barn').value.replace(/\s/g, ''));
+	var egen_brutto = parseInt(document.getElementById('egen_brutto').value.replace(/\s/g, ''));
+	var samboer_brutto = parseInt(document.getElementById('samboer_brutto').value.replace(/\s/g, ''));
+	
+	if (
+		Number.isNaN(g_gammel) || 
+		Number.isNaN(g_ny) || 
+		Number.isNaN(antall_barn) ||
+		Number.isNaN(egen_brutto) ||
+		Number.isNaN(samboer_brutto)
+	) {
+		alert("Mangler gyldig(e) inndata.");
+		return;
+	}
+	
+	
+	// Oppdater samboer brutto med - 1G.
+	var samboer_brutto_etter = parseInt(samboer_brutto - g_ny);
+	document.getElementById('samboer_brutto_etter').value = samboer_brutto_etter;
+	
+	// Oppdater fribeløp.
+	var fribelop = Math.ceil((4.6 * g_ny) + ((antall_barn-1)*(0.4*g_ny)));
+	document.getElementById('fribelop').value = fribelop;
+	
+	// Oppdater barnetillegg rett før fratrekk.
+	var barnetillegg_for = Math.ceil(((((0.4*g_gammel)/12)*4) + (((0.4*g_ny)/12)*8)) * antall_barn)
+	document.getElementById('barnetillegg_for').value = barnetillegg_for;
+	
+	// Oppdater grunnlag etter at fribeløp er trukket fra.
+	var barnetillegg_grunnlag_etter_fribelop = (egen_brutto+samboer_brutto_etter)-fribelop;
+	if (barnetillegg_grunnlag_etter_fribelop < 0)
+		barnetillegg_grunnlag_etter_fribelop = 0;
+	document.getElementById('barnetillegg_grunnlag_etter_fribelop').value = barnetillegg_grunnlag_etter_fribelop;
+	
+	// Oppdater utregnet rett til barnetillegg.
+	var barnetillegg_etter = Math.ceil(barnetillegg_for - (barnetillegg_grunnlag_etter_fribelop*0.5));
+	if (barnetillegg_etter < 0)
+		barnetillegg_etter = 0;
+	
+	// Kan ikke overstige 6 G.
+	if (barnetillegg_etter > 6 * g_ny)
+		barnetillegg_etter = 6 * g_ny;
+	document.getElementById('barnetillegg_etter').innerHTML = barnetillegg_etter;
+}
+</script>
+
+</head>
+<body>
+
+<div style="font-style:italic;">
+	Det brukes regler basert på et eksempel av <b>Forhåndsvarsel om etteroppgjør av uføretrygd</b> og folketrygdeloven.
+</div><br>
+
+<h2>Inndata</h2>
+G (grunnbeløp) <b>året før</b> (gjelder til 1 mai):  <b>kr</b> <input type="text" id="g_gammel" class="fyllfelter" value=""><br>
+G (grunnbeløp) <b>fra 1 mai året det gjelder</b>: <b>kr</b> <input type="text" id="g_ny" class="fyllfelter" value=""><br>
+Antall barn: <input type="text" id="antall_barn" class="fyllfelter" value=""><br>
+Egen brutto (før skatt) personinntekt (trygd + arbeid): <b>kr</b> <input type="text" id="egen_brutto" class="fyllfelter" value=""><br>
+Samboers brutto (før skatt) personinntekt (trygd + arbeid): <b>kr</b> <input type="text" id="samboer_brutto" class="fyllfelter" value=""><br><br>
+
+<h2>Automatiske utregninger</h2>
+Samboers brutto etter at 1G er trukket fra: <b>kr</b> <input type="text" id="samboer_brutto_etter" class="autofelter" value="0" readonly><br>
+Fribeløp (4,6 x siste G + 0,4 * siste G per ekstra barn): <b>kr</b> <input type="text" id="fribelop" class="autofelter" value="0" readonly><br>
+Barnetillegg før fribeløp fratrekk: <b>kr</b> <input type="text" id="barnetillegg_for" class="autofelter" value="0" readonly><br>
+Grunnlag for fratrekk etter at fribeløp er trukket fra: <b>kr</b> <input type="text" id="barnetillegg_grunnlag_etter_fribelop" class="autofelter" value="0" readonly><br><br>
+
+<h2>Automatisk utregnet rett til barnetillegg: kr <span id="barnetillegg_etter">0</span></h2>
+</div>
+
+<input type="button" value="Kalkuler" onclick="kalkuler()" style="width:200px; padding:10px; cursor:pointer; border:1px solid #333">
+
+</body>
+</html>
