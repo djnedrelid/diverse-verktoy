@@ -26,4 +26,4 @@
 
 [HTML Kodesjekk](https://djnedrelid.github.io/diverse-verktoy/htmltagcheck/)  
 
-© Dag J Nedrelid
+© Dag J. V. Nedrelid
