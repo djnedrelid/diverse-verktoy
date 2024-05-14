@@ -16,6 +16,10 @@
 
 [Kalkulator - Menneskelig Multiplisering](https://djnedrelid.github.io/diverse-verktoy/menneskelig_multiplisering/)  
 
+[Kalkulator - Høyttaler Watt](https://djnedrelid.github.io/diverse-verktoy/speaker_wattage_calc/)  
+
+[Kalkulator - Parallelle Resistorer](https://djnedrelid.github.io/diverse-verktoy/parallel_resistor_calc/)  
+
 [Steganografi - Bilder i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/bilder-i-bilder/)  
 
 [Steganografi - Tekst i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/tekst-i-bilder/)  

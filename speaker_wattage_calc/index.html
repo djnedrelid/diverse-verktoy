@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>thronic.com - Speaker wattage calculator</title>
+<style>
+BODY {font-family: verdana; font-size: 15px;}
+</style>
+</head>
+<body>
+
+<h1>Speaker wattage calculator</h1>
+Inspired by a video by <a href="https://youtu.be/sYfHO-QdGJ4?si=1jV48zroTywqfPq7" target="_blank">CRUTCHFIELD</a><br><br>
+
+Also, from the <a href="https://www.thx.com/faq/" target="_blank">THX FAQ</a>:<br>
+<em>"Experience Studio Clarity: THX Certified Receivers reproduce studio Reference Level, 85dB SPL with 20dB of headroom."</em><br><br>
+
+This can be interpreted as 85dB continuous and 105dB peak, meaning you ideally want an amp able to reach those spikes.<br>
+This calculator follows the concept of loudness going down 6dB when range is doubled, and up 3dB when watt is doubled.<br><br>
+
+<h3>Enter sensitivity of speaker and range to calculate watts needed from amp:</h3>
+Speaker dB per 1 watt at 1 meter: <input type="text" id="dbpw"><br><br>
+
+<b>Note:</b> <em>Watt is a volt/current relationship. More current than voltage may be required for that 1 watt.<br>
+Different amount of voltage may be required for different kinds of speakers.<br>
+Meaning that in general, you'll want a high quality amp that has a high quality power supply and electrical components.</em><br><br>
+
+Listening range from the speaker in meters: <input type="text" id="range"><br><br>
+
+Alternatively, enter your desired dB instead of using THX peak value (105): <input type="text" id="altdb" value=""><br><br>
+
+<input type="button" onclick="calc()" value="="> 
+<input type="button" onclick="reset()" value="reset"><br><br>
+
+<span id="result"></span>
+
+<script>
+function calc() {
+	var dbpw = parseInt(document.getElementById('dbpw').value);
+	var range = parseInt(document.getElementById('range').value);
+	var report = '';
+	
+	// Alternativ dB verdi angitt?
+	var thx = 105;
+	var altdb = document.getElementById('altdb').value;
+	if (altdb != '')
+		thx = parseInt(altdb);
+	
+	// Regn ut dB fall etter ønsket rekkevidde.
+	var db_decrease_per_double_range = 6;
+	var range_times_doubled = Math.log2(range);
+	var curr_db = dbpw - (range_times_doubled * 6);
+	report += 'At '+ range.toString() +' meters, dB is around '+ curr_db.toFixed(0) +' given 1W at 1 meter.<br>';
+	
+	// Regn ut mengde watt som trengs for å nå THX continuous.
+	var watts = 1;
+	while (curr_db < thx) {
+		watts *= 2;
+		curr_db += 3;
+	}
+	report += '<b>'+ watts.toString() +'W</b> is suggested to drive '+ curr_db.toFixed(0) +'dB at '+ range.toString() +' meters.';
+	
+	// Vis resultat.
+	document.getElementById('result').innerHTML = report;
+}
+
+function reset() {
+	document.getElementById('dbpw').value = '';
+	document.getElementById('range').value = '';
+	document.getElementById('altdb').value = '';
+	document.getElementById('result').innerHTML = '';
+}
+</script>
+</body>
+</html>

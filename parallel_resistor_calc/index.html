@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>thronic.com - Parallel Resistor Calc</title>
+<style></style>
+</head>
+<body>
+
+<h1>Ohm in parallel / Resistors in parallel Calculator</h1>
+Formula used: 1 / ((1/R1) + (1/R2) ...) = N &#8486;<br><br>
+
+<b>Values:</b><br>
+<div id="valuebox">
+R1 value: <input type="text" name="r1" id="r1"><br>
+</div>
+
+<br>
+<input type="button" onclick="add()" value="+"> 
+<input type="button" onclick="calc()" value="="> 
+<input type="button" onclick="reset()" value="Reset">
+<span id="result"></span>
+
+<script>
+var r_index = 1;
+
+function add() {
+	var values = [];
+	
+	// Husk eksisterende verdier.
+	for (let a=1; a<=r_index; a++)
+		values.push(document.getElementById('r'+a.toString()).value);
+
+	// Legg til nytt felt.
+	r_index += 1;
+	var box = document.getElementById('valuebox');
+	box.innerHTML += 'R'+ r_index.toString() +' value: <input type="text" name="r'+ r_index.toString() +'" id="r'+ r_index.toString() +'"><br>';
+	
+	// Gj.opprett eksisterende verdier.
+	for (let a=1; a<=r_index-1; a++)
+		document.getElementById('r'+a.toString()).value = values[a-1];
+}
+
+function calc() {
+	var r_sum = 0.0;
+	for (let a=1; a<=r_index; a++) 
+		r_sum += 1 / parseInt(document.getElementById('r'+a.toString()).value);
+	r_sum = 1 / r_sum;
+	
+	// Kutt vekk unødvendige nuller før visning.
+	r_sum_string = r_sum.toFixed(4);
+	for (let a=r_sum_string.length-1; a>=3; a--) {
+		if (r_sum_string[a] == '0')
+			r_sum_string = r_sum_string.substring(0,a);
+		else
+			break;
+	}
+	document.getElementById('result').innerHTML = r_sum_string + ' &#8486;';
+}
+
+function reset() {
+	r_index = 1;
+	document.getElementById('valuebox').innerHTML = 'R1 value: <input type="text" name="r1" id="r1"><br>';
+}
+</script>
+</body>
+</html>
