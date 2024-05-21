@@ -12,7 +12,8 @@ BODY {font-family: verdana; font-size: 15px;}
 <h1>Speaker surface area calculator</h1>
 
 What single size speaker/driver surface is equivalent to multiple smaller ones?<br>
-Unit used (inches, cm, mm etc.) is not important, formula used is <code>&pi;*r^2</code> <em>(see <a href="https://en.wikipedia.org/wiki/Order_of_operations" target="_blank">PEMDAS</a> if needed)</em>.<br><br>
+Unit used (inches, cm, mm etc.) is not important, formula used is <code>&pi;*r^2</code> <em>(see <a href="https://en.wikipedia.org/wiki/Order_of_operations" target="_blank">PEMDAS</a> if needed)</em>.<br>
+That finds the surface of a single circle. To convert the sum result into a single: <code>&Sqrt;surface/&pi;</code>.<br><br>
 
 <input type="button" onclick="add()" value="Add another small size"><br>
 <div id="small_sizes">
