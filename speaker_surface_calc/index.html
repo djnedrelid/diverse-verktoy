@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>thronic.com - Speaker surface area calculator</title>
+<style>
+BODY {font-family: verdana; font-size: 15px;}
+</style>
+</head>
+<body>
+
+<h1>Speaker surface area calculator</h1>
+
+What single size speaker/driver surface is equivalent to multiple smaller ones?<br>
+Unit used (inches, cm, mm etc.) is not important, formula used is <code>&pi;*r^2</code> <em>(see <a href="https://en.wikipedia.org/wiki/Order_of_operations" target="_blank">PEMDAS</a> if needed)</em>.<br><br>
+
+<input type="button" onclick="add()" value="Add another small size"><br>
+<div id="small_sizes">
+Small speaker 1 size: <input type="text" id="small_1"><br>
+</div><br>
+
+<input type="button" onclick="calc()" value="Calculate"><br><br>
+
+<span id="result"></span>
+
+<script>
+var r_index = 1;
+
+function calc() {
+	var values = [];
+	
+	// Hent eksisterende verdier som flytverdier.
+	for (let a=1; a<=r_index; a++)
+		values.push(parseFloat(document.getElementById('small_'+a.toString()).value));
+		
+	// Kalkuler summen av overflater.
+	var surface_sum = 0;
+	for (let a=0; a<values.length; a++)
+		surface_sum += 3.14 * Math.pow((values[a]/2),2);
+	var single_surface = Math.sqrt(surface_sum/3.14)*2;
+	
+	// Forbered rapport.
+	var report = ''+
+	'Collective surface area of smaller speakers is '+ surface_sum.toFixed(2) +', in whatever unit you used.<br>'+
+	'This is equivalent of a single circle surface of '+ single_surface.toFixed(4) +', in whatever unit you used.';
+	
+	// Vis result.
+	document.getElementById('result').innerHTML = report;
+}
+
+function add() {
+	var values = [];
+	
+	// Husk eksisterende verdier.
+	for (let a=1; a<=r_index; a++)
+		values.push(document.getElementById('small_'+a.toString()).value);
+
+	// Legg til nytt felt.
+	r_index += 1;
+	var box = document.getElementById('small_sizes');
+	box.innerHTML += 'Small speaker '+ r_index.toString() +' size: '+
+	' <input type="text" id="small_'+ r_index.toString() +'"><br>';
+	
+	// Gj.opprett eksisterende verdier.
+	for (let a=1; a<=r_index-1; a++)
+		document.getElementById('small_'+a.toString()).value = values[a-1];
+}
+</script>
+</body>
+</html>

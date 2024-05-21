@@ -18,6 +18,8 @@
 
 [Kalkulator - Høyttaler Watt](https://djnedrelid.github.io/diverse-verktoy/speaker_wattage_calc/)  
 
+[Kalkulator - Høyttaler Overflate](https://djnedrelid.github.io/diverse-verktoy/speaker_surface_calc/)  
+
 [Kalkulator - Parallelle Resistorer](https://djnedrelid.github.io/diverse-verktoy/parallel_resistor_calc/)  
 
 [Steganografi - Bilder i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/bilder-i-bilder/)  
