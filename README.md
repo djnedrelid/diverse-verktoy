@@ -26,6 +26,6 @@
 
 [Steganografi - Tekst i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/tekst-i-bilder/)  
 
-[HTML Kodesjekk](https://djnedrelid.github.io/diverse-verktoy/htmltagcheck/)  
+[HTML Tag Checker](https://djnedrelid.github.io/diverse-verktoy/htmltagcheck/)  
 
 © Dag J. V. Nedrelid
