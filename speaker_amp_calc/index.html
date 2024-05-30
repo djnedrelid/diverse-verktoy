@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>thronic.com - Speaker amp voltage calculator</title>
+<style>
+BODY {font-family: verdana; font-size: 15px;}
+</style>
+</head>
+<body>
+
+<h1>Speaker amp voltage calculator</h1>
+
+<b>This calculator can help with limiting strong amps so you don't blow your speakers easily.<br>
+It can also be used to see if you can reach desired voltage at all. Uses formula V=&Sqrt;P*R</b><br><br>
+
+1. Set your master volume to somewhere between 80-100%.<br><br>
+
+2. Enter max wattage you want to provide to the speaker, you need to do this per channel: <input type="text" id="watt" onkeyup="gen_calc_button()"><br><br>
+
+3. Enter the &ohm;(Ohm) value of the speaker: <input type="text" id="ohm" onkeyup="gen_calc_button()"><br><br>
+
+<div id="calc_box"><b>Enter valid numeric values to calculate</b></div>
+
+<script>
+function calc() {
+	var watt = parseInt(document.getElementById('watt').value);
+	var ohm = parseInt(document.getElementById('ohm').value);
+	var volts = Math.sqrt(watt*ohm);
+	
+	// Vis resultat.
+	document.getElementById('result').innerHTML = volts.toFixed(2) +' VAC';
+}
+
+function gen_calc_button() {
+	var watt = parseInt(document.getElementById('watt').value);
+	var ohm = parseInt(document.getElementById('ohm').value);
+	var calc_box = document.getElementById('calc_box');
+	
+	if (!isNaN(watt) && !isNaN(ohm))
+		calc_box.innerHTML = '<input type="button" onclick="calc()" value="Calculate the voltage needed to achieve '+ watt.toString() +' watts: " style="cursor:pointer"> <span id="result"></span>';
+	else
+		calc_box.innerHTML = '<b>Enter valid numeric values to calculate</b>';
+}
+</script>
+</body>
+</html>
