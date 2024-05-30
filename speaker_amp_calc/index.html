@@ -29,7 +29,7 @@ function calc() {
 	var volts = Math.sqrt(watt*ohm);
 	
 	// Vis resultat.
-	document.getElementById('result').innerHTML = volts.toFixed(2) +' VAC';
+	document.getElementById('result').innerHTML = volts.toFixed(2) +' VAC <em>(Measure from speaker output terminals with a multimeter.)</em>';
 }
 
 function gen_calc_button() {
