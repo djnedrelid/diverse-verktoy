@@ -33,3 +33,5 @@
 [HTML Tag Checker](https://djnedrelid.github.io/diverse-verktoy/htmltagcheck/)  
 
 © Dag J. V. Nedrelid  
+
+v2
