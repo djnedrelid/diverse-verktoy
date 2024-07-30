@@ -22,6 +22,8 @@
 
 [Kalkulator - Høyttaler Forsterker](https://djnedrelid.github.io/diverse-verktoy/speaker_amp_calc/)  
 
+[Kalkulator - Høyttaler Forsterker](https://djnedrelid.github.io/diverse-verktoy/amp_input_high_pass_filter_calc/)  
+
 [Kalkulator - Parallelle Resistorer](https://djnedrelid.github.io/diverse-verktoy/parallel_resistor_calc/)  
 
 [Steganografi - Bilder i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/bilder-i-bilder/)  

@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<title>thronic.com - Amplifier Input High Pass Filter Calculator</title>
+<style>
+BODY {font-family: verdana; font-size: 15px;}
+</style>
+</head>
+<body>
+
+<h1>Amplifier Input High Pass Filter Calculator</h1>
+
+<b>
+	This calculator can help with the capacitance needed for a capacitor, <br>
+	to engineer a passive high pass filter for e.g. subwoofer integration.<br>
+	Uses formula <code>C = 1/(2*&pi;*Zin*f3)</code>
+</b><br><br>
+
+1. Enter amplifier input impedance <em>(Zin)</em> in Ohms: <input type="number" step="any" id="amp_imp"><br><br>
+
+2. Enter desired -3dB cutoff frequency<em>(f3)</em> in Hertz: <input type="number" step="any" id="cutoff_hz"><br><br>
+
+<b>Enter valid numeric values to</b> <input type="button" onclick="calc()" value="calculate"><br><br>
+
+<div id="calc_box"></div><br><br>
+
+<script>
+function calc() {
+	var Zin = parseFloat(document.getElementById('amp_imp').value);
+	var f3 = parseFloat(document.getElementById('cutoff_hz').value);
+	var calc_box = document.getElementById('calc_box');
+	
+	if (isNaN(Zin) || isNaN(f3) || Zin <= 0 || f3 <= 0) {
+		calc_box.innerHTML = 'Please enter valid positive numbers for impedance and frequency.';
+		return;
+	}
+	
+	var C = 1 / (2 * Math.PI * Zin * f3);
+	var C_nanofarads = C * 1e9;
+	var C_microfarads = C * 1e6;
+	var C_millifarads = C * 1e3;
+	
+	// Vis resultat.
+	calc_box.innerHTML = 'Capacitance in: <br>'+
+		C.toFixed(15) +' <b>Farads (F)</b><br>'+
+		C_nanofarads.toFixed(2) +' Nanofarads (<b>nF</b>)<br>'+
+		C_microfarads.toFixed(2) +' Microfarads (<b>µF / MFD</b>)<br>'+
+		C_millifarads.toFixed(2) +' Millifarads (<b>mF</b>)';
+}
+</script><br><br>
+
+<span style="color:#ccc; font-style:italic" title="Dag J. V. Nedrelid">by ժʝ</span><br><br>
+
+<em>Wiring example drawing, borrowed from Troels Gravesen, Denmark.</em><br>
+<img src="wiring_example.png">
+</body>
+</html>
