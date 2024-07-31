@@ -37,6 +37,7 @@ function calc() {
 	}
 	
 	var C = 1 / (2 * Math.PI * Zin * f3);
+	var C_picofarads = C * 1e12;
 	var C_nanofarads = C * 1e9;
 	var C_microfarads = C * 1e6;
 	var C_millifarads = C * 1e3;
@@ -44,6 +45,7 @@ function calc() {
 	// Vis resultat.
 	calc_box.innerHTML = 'Capacitance in: <br>'+
 		C.toFixed(15) +' <b>Farads (F)</b><br>'+
+		C_picofarads.toFixed(2) +' Picofarads (<b>pF</b>)<br>'+
 		C_nanofarads.toFixed(2) +' Nanofarads (<b>nF</b>)<br>'+
 		C_microfarads.toFixed(2) +' Microfarads (<b>µF / MFD</b>)<br>'+
 		C_millifarads.toFixed(2) +' Millifarads (<b>mF</b>)';
@@ -53,6 +55,7 @@ function calc() {
 <span style="color:#ccc; font-style:italic" title="Dag J. V. Nedrelid">by ժʝ</span><br><br>
 
 <em>Wiring example drawing, borrowed from Troels Gravesen, Denmark.</em><br>
+Keep in mind, since audio signal is AC, you'll want a bipolar/non-polarized capacitor.<br>
 <img src="wiring_example.png">
 </body>
 </html>
