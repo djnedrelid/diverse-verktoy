@@ -30,6 +30,8 @@
 
 [Steganografi - Tekst i Bilder](https://djnedrelid.github.io/diverse-verktoy/steganografi/tekst-i-bilder/)  
 
+[Konvertering - Desimal, Hex, Tekst, Binær](https://djnedrelid.github.io/diverse-verktoy/decimal_hex_binary_text_converter/)  
+
 [HTML Tag Checker](https://djnedrelid.github.io/diverse-verktoy/htmltagcheck/)  
 
 © Dag J. V. Nedrelid  

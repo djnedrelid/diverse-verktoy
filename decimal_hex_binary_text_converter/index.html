@@ -1,0 +1,99 @@
+<!doctype html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Cache-control" content="no-cache">
+<meta http-equiv="Expires" content="-1">
+<title>thronic.com | Decimal Hex Binary Text Converter</title>
+<style>
+BODY {
+	font-family: verdana;
+	font-size: 13px;
+}
+TEXTAREA {
+	width: 600px;
+	height: 200px;
+}
+INPUT[type=button] {
+	outline: none;
+	border: none;
+	font-size: 24px;
+	padding: 10px;
+	background-color: #e6faff;
+	cursor: pointer;
+}
+</style>
+<script>
+function dec_to_hex() {
+	var val = parseInt(document.getElementById('dectohex').value);
+	document.getElementById('hextodec').value = val.toString(16);
+}
+
+function hex_to_dec() {
+	var val = parseInt(document.getElementById('hextodec').value,16);
+	document.getElementById('dectohex').value = val.toString();
+}
+
+function text_to_bin() {
+	var text = document.getElementById('binaryconverter_texttobin').value;
+	var binary_out = '';
+	
+	for (let a=0; a<text.length; a++) {
+		var bin = text.charCodeAt(a).toString(2);
+		bin = '00000000'.substring(bin.length) + bin;
+		binary_out += bin;
+		
+		if (document.getElementById('binaryconverter_BinSpaces').checked)
+			binary_out += ' ';
+	}
+	
+	document.getElementById('binaryconverter_bintotext').value = binary_out;
+}
+
+function bin_to_text() {
+	var binarystring = document.getElementById('binaryconverter_bintotext').value.replace(' ','');
+	var text_out = '';
+	
+	var counter = 0;
+	var binpart = '';
+	
+	for (let a=0; a<binarystring.length; a++) {
+		
+		binpart += binarystring[a];
+		counter += 1;
+		
+		if (counter == 8) {
+			let decnum = parseInt(binpart,2);
+			text_out += String.fromCharCode(decnum);
+			binpart = '';
+			counter = 0;
+		}
+	}
+	
+	document.getElementById('binaryconverter_texttobin').value = text_out;
+}
+</script>
+</head>
+<html>
+<body>
+
+Decimal to Hex<br>
+<input type="text" id="dectohex"><br>
+<input type="button" value="Decimal to Hex" onclick="return dec_to_hex('Hex')"><br><br><br>
+
+Hex to Decimal<br>
+<input type="text" id="hextodec"></textarea><br>
+<input type="button" value="Hex to Decimal" onclick="return hex_to_dec('Dec')"><br><br><br>
+
+Text to Binary<br>
+<textarea id="binaryconverter_texttobin"></textarea><br>
+<input type="button" value="Text to Binary" onclick="return text_to_bin()"> 
+<input type="checkbox" id="binaryconverter_BinSpaces" style="vertical-align:middle" checked> Use spaces between bytes.<br><br><br>
+
+Binary to Text<br>
+<textarea id="binaryconverter_bintotext"></textarea><br>
+<input type="button" value="Binary to Text" onclick="return bin_to_text()"><br><br><br>
+
+
+<span style="color:#ccc; font-style:italic" title="Dag J. V. Nedrelid">by ժʝ</span><br>	
+</body>
+</html>
