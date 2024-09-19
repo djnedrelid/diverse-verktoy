@@ -22,6 +22,8 @@
 
 [Kalkulator - Høyttaler Forsterker](https://djnedrelid.github.io/diverse-verktoy/speaker_amp_calc/)  
 
+[Kalkulator - Høyttaler Crossover 2-way](https://djnedrelid.github.io/diverse-verktoy/speaker_2way_crossover_calc/)  
+
 [Kalkulator - Preamp to Amp High Pass Filter](https://djnedrelid.github.io/diverse-verktoy/amp_input_high_pass_filter_calc/)  
 
 [Kalkulator - Parallelle Resistorer](https://djnedrelid.github.io/diverse-verktoy/parallel_resistor_calc/)  

@@ -1,0 +1,344 @@
+<!doctype html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="" rel="stylesheet" type="text/css">
+<script src="" type="text/javascript"></script>
+<title></title>
+<style>
+body, select, input { font-family: verdana; }
+@media print { .no-print, .no-print * { display: none !important; }}
+#result { display: none; }
+.ccolor { color: blue; font-weight: bold; }
+</style>
+<script>
+function showDiagram(c1,c2,c3,c4,c5,c6,l1,l2,l3,l4,l5,l6,Rh,Rl,f,xover)
+{
+	var result = '<h1>'+ xover +'</h1>'+ 
+	             'Crossover at '+ f +' Hz.<br>'+ 
+	             Rh +' Ohm Tweeter / '+ Rl + 'Ohm Woofer.<br>'+
+				 '<img src="circuit'+ xover.substring(0,1) +'.gif"><br><br>';
+	
+	result += '<b>Capacitor(s)</b>:<br>'+
+	          '<font class="ccolor">C1</font> = '+ c1 +' uF<br>';
+	
+	if (c2 != 0)
+		result += '<font class="ccolor">C2</font> = '+ c2 +' uF<br>';
+	if (c3 != 0)
+		result += '<font class="ccolor">C3</font> = '+ c3 +' uF<br>';
+	if (c4 != 0)
+		result += '<font class="ccolor">C4</font> = '+ c4 +' uF<br>';
+	if (c5 != 0)
+		result += '<font class="ccolor">C5</font> = '+ c5 +' uF<br>';
+	if (c6 != 0)
+		result += '<font class="ccolor">C6</font> = '+ c6 +' uF<br>';
+
+
+	result += '<br><b>Inductor(s)</b>:<br>'+
+	          '<font class="ccolor">L1</font> = '+ l1 +' mH<br>';
+
+	if (l2 != 0)
+		result += '<font class="ccolor">L2</font> = '+ l2 +' mH<br>';
+	if (l3 != 0)
+		result += '<font class="ccolor">L3</font> = '+ l3 +' mH<br>';
+	if (l4 != 0)
+		result += '<font class="ccolor">L4</font> = '+ l4 +' mH<br>';
+	if (l5 != 0)
+		result += '<font class="ccolor">L5</font> = '+ l5 +' mH<br>';
+	if (l6 != 0)
+		result += '<font class="ccolor">L6</font> = '+ l6 +' mH<br>';
+		
+	result += '<br><input class="no-print" type="button" value="Print" onclick="window.print()">';
+	
+	var rdiv = document.getElementById('result');
+	rdiv.innerHTML = result;
+	rdiv.style.display = 'block';
+	rdiv.style.padding = '50px';
+}
+
+function Roundoff(v)
+{
+	Value = v * 100;
+	Value = Math.round(Value);
+	Value = Value / 100;
+
+	return Value.toString();
+}
+
+function check36(Rh, Rl, f, xover)
+{
+	if ( xover == "6th Order Linkwitz-Riley" )
+	{
+		cratio1 = .0884;
+		cratio2 = .1081;
+		cratio3 = .2188;
+		cratio4 = .2947;
+		cratio5 = .1783;
+		cratio6 = .0398;
+		lratio1 = .0859;
+		lratio2 = .1420;
+		lratio3 = .6366;
+		lratio4 = .2865;
+		lratio5 = .2344;
+		lratio6 = .1157;
+	}
+
+	c1 = Roundoff((cratio1/(Rh*f))*1000000);
+	c2 = Roundoff((cratio2/(Rh*f))*1000000);
+	c3 = Roundoff((cratio3/(Rh*f))*1000000);
+	c4 = Roundoff((cratio4/(Rl*f))*1000000);
+	c5 = Roundoff((cratio5/(Rl*f))*1000000);
+	c6 = Roundoff((cratio6/(Rl*f))*1000000);
+	l1 = Roundoff(((lratio1*Rh)/f)*1000);
+	l2 = Roundoff(((lratio2*Rh)/f)*1000);
+	l3 = Roundoff(((lratio3*Rh)/f)*1000);
+	l4 = Roundoff(((lratio4*Rl)/f)*1000);
+	l5 = Roundoff(((lratio5*Rl)/f)*1000);
+	l6 = Roundoff(((lratio6*Rl)/f)*1000);
+
+	showDiagram(c1,c2,c3,c4,c5,c6,l1,l2,l3,l4,l5,l6,Rh,Rl,f,xover);
+}
+
+function check24(Rh, Rl, f, xover)
+{
+	if ( xover == "4th Order Linkwitz-Riley" )
+	{
+		cratio1 = .0844;
+		cratio2 = .1688;
+		cratio3 = .2533;
+		cratio4 = .0563;
+		lratio1 = .1000;
+		lratio2 = .4501;
+		lratio3 = .3000;
+		lratio4 = .1500;
+	}
+	else if ( xover == "4th Order Bessel" )
+	{
+		cratio1 = .0702;
+		cratio2 = .0719;
+		cratio3 = .2336;
+		cratio4 = .0504;
+		lratio1 = .0862;
+		lratio2 = .4983;
+		lratio3 = .3583;
+		lratio4 = .1463;
+	}
+	else if ( xover == "4th Order Butterworth" )
+	{
+		cratio1 = .1040;
+		cratio2 = .1470;
+		cratio3 = .2509;
+		cratio4 = .0609;
+		lratio1 = .1009;
+		lratio2 = .4159;
+		lratio3 = .2437;
+		lratio4 = .1723;
+	}
+	else if ( xover == "4th Order Legendre" )
+	{
+		cratio1 = .1104;
+		cratio2 = .1246;
+		cratio3 = .2365;
+		cratio4 = .0910;
+		lratio1 = .1073;
+		lratio2 = .2783;
+		lratio3 = .2294;
+		lratio4 = .2034;
+	}
+	else if ( xover == "4th Order Gaussian" )
+	{
+		cratio1 = .0767;
+		cratio2 = .1491;
+		cratio3 = .2235;
+		cratio4 = .0768;
+		lratio1 = .1116;
+		lratio2 = .3251;
+		lratio3 = .3253;
+		lratio4 = .1674;
+	}
+	else if ( xover == "4th Order Linear Phase" )
+	{
+		cratio1 = .0741;
+		cratio2 = .1524;
+		cratio3 = .2255;
+		cratio4 = .0632;
+		lratio1 = .1079;
+		lratio2 = .3853;
+		lratio3 = .3285;
+		lratio4 = .1578;
+	}
+
+	c1 = Roundoff((cratio1/(Rh*f))*1000000);
+	c2 = Roundoff((cratio2/(Rh*f))*1000000);
+	c3 = Roundoff((cratio3/(Rl*f))*1000000);
+	c4 = Roundoff((cratio4/(Rl*f))*1000000);
+	l1 = Roundoff(((lratio1*Rh)/f)*1000);
+	l2 = Roundoff(((lratio2*Rh)/f)*1000);
+	l3 = Roundoff(((lratio3*Rl)/f)*1000);
+	l4 = Roundoff(((lratio4*Rl)/f)*1000);
+
+	showDiagram(c1,c2,c3,c4,0,0,l1,l2,l3,l4,0,0,Rh,Rl,f,xover);
+}
+
+function check18(Rh, Rl, f, xover)
+{
+	if ( xover == "3rd Order Butterworth" )
+	{
+		cratio1 = .1061;
+		cratio2 = .3183;
+		cratio3 = .2122;
+		lratio1 = .1194;
+		lratio2 = .2387;
+		lratio3 = .0796;
+	}
+	else if ( xover == "3rd Order Bessel" )
+	{
+		cratio1 = .0791;
+		cratio2 = .3953;
+		cratio3 = .1897;
+		lratio1 = .1317;
+		lratio2 = .3294;
+		lratio3 = .0659;
+	}
+
+	c1 = Roundoff((cratio1/(Rh*f))*1000000);
+	c2 = Roundoff((cratio2/(Rh*f))*1000000);
+	c3 = Roundoff((cratio3/(Rl*f))*1000000);
+	l1 = Roundoff(((lratio1*Rh)/f)*1000);
+	l2 = Roundoff(((lratio2*Rl)/f)*1000);
+	l3 = Roundoff(((lratio3*Rl)/f)*1000);
+
+	showDiagram(c1,c2,c3,0,0,0,l1,l2,l3,0,0,0,Rh,Rl,f,xover);
+}
+
+function check12(Rh, Rl, f, xover)
+{
+	if ( xover == "2nd Order Linkwitz-Riley" )
+	{
+		cratio = .0796;
+		lratio = .3183;
+	}
+	else if ( xover == "2nd Order Butterworth" )
+	{
+		cratio = .1125;
+		lratio = .2251;
+	}
+	else if ( xover == "2nd Order Bessel" )
+	{
+		cratio = .0912;
+		lratio = .2756;
+	}
+	else if ( xover == "2nd Order Chebychev Q=1" )
+	{
+		cratio = .1592;
+		lratio = .1592;
+	}
+
+	c1 = Roundoff((cratio/(Rh*f))*1000000);
+	c2 = Roundoff((cratio/(Rl*f))*1000000);
+	l1 = Roundoff(((lratio*Rh)/f)*1000);
+	l2 = Roundoff(((lratio*Rl)/f)*1000);
+
+	showDiagram(c1,c2,0,0,0,0,l1,l2,0,0,0,0,Rh,Rl,f,xover);
+}
+
+function check6(Rh, Rl, f, xover)
+{
+	if ( xover == "1st Order Butterworth" )
+	{
+		cratio = .1590;
+		lratio = .1592;
+	}
+	else if ( xover == "1st Order Solen Split" )
+	{
+		cratio = .1125;
+		lratio = .2251;
+	}
+
+	c1 = Roundoff((cratio/(Rh*f))*1000000);
+	l1 = Roundoff(((lratio*Rl)/f)*1000);
+
+	showDiagram(c1,0,0,0,0,0,l1,0,0,0,0,0,Rh,Rl,f,xover);
+}
+
+function check(form)
+{
+	if((form.Rh.value <=0) || (form.Rl.value <=0))
+	{
+		alert("Enter an Impedance values for each driver ");
+	}
+	else if(form.f.value <=0)
+	{
+		alert("You have not entered a frequency !");
+	}
+	else
+	{
+		Rh = eval(form.Rh.value);
+		Rl = eval(form.Rl.value);
+		f = eval(form.f.value);
+		xover = form.xover.options[form.xover.options.selectedIndex].text;
+
+		if ( xover.substring(0,1) == "1" )
+		{
+			check6( Rh, Rl, f, xover)
+		}
+		else if ( xover.substring(0,1) == "2" )
+		{
+			check12( Rh, Rl, f, xover)
+		}
+		else if ( xover.substring(0,1) == "3" )
+		{
+			check18( Rh, Rl, f, xover)
+		}
+		else if ( xover.substring(0,1) == "4" )
+		{
+			check24( Rh, Rl, f, xover)
+		}
+		else if ( xover.substring(0,1) == "6" )
+		{
+			check36( Rh, Rl, f, xover)
+		}
+	}
+}
+</script>
+</head>
+<body>
+
+<h2 class="no-print">2-Way Crossover Calculator Designer</h2>
+<form class="no-print">
+<table class="table-formula">
+<tr><th>Tweeter Impedance: </th><td><input type="text" name="Rh" size="3" /> Ohms</td></tr>
+<tr><th>Woofer Impedance: </th><td><input type="text" name="Rl" size="3" /> Ohms</td></tr>
+<tr><th>Frequency: </th><td><input type="text" name="f" size="5" /> Hz </td></tr>
+<tr><th>Crossover Type: </th>
+<td><select name="xover">
+<option selected="selected">1st Order Butterworth</option>
+<option>1st Order Solen Split</option>
+<option>2nd Order Linkwitz-Riley</option>
+<option>2nd Order Butterworth</option>
+<option>2nd Order Bessel</option>
+<option>2nd Order Chebychev Q=1</option>
+<option>3rd Order Butterworth</option>
+<option>3rd Order Bessel</option>
+<option>4th Order Linkwitz-Riley</option>
+<option>4th Order Bessel</option>
+<option>4th Order Butterworth</option>
+<option>4th Order Legendre</option>
+<option>4th Order Gaussian</option>
+<option>4th Order Linear Phase</option>
+<option>6th Order Linkwitz-Riley</option>
+</select> <input type="button" value="Calculate" onclick="check(this.form); return false;" class="btn btn-info calculate"></td></tr>
+</table>
+</form>
+
+<div id="result"></div>
+
+<div class="no-print" style="padding-top:30px; color:#666; font-style:italic; font-size:13px">
+	<b>Credits:</b><br>
+	Functionality is borrowed from https://www.diyaudioandvideo.com/Calculator/SpeakerCrossover/.<br>
+	Visit the site for more information about formulas, theory and origin behind this calculator.<br><br>
+	
+	Dag J. V. Nedrelid
+</div>
+</body>
+</html>
